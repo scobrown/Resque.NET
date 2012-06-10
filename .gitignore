@@ -2,5 +2,16 @@
 bin
 obj
 
+#VStudio
+*.suo
+*.vsmdi
+*.user
+
 # mstest test results
 TestResults
+
+# Nuget packages
+Packages
+
+#ReSharper
+_Resharper*
