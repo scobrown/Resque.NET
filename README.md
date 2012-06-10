@@ -3,10 +3,11 @@ Resque.NET
 
 Resque .NET implimentation
 
-Redis Booksleeve client available
+Redis Booksleeve Client
+=======================
 
-https://github.com/scobrown/Resque.RedisClient.Booksleeve
+Get it by
+* https://github.com/scobrown/Resque.RedisClient.Booksleeve
+* https://nuget.org/packages/Resque.RedisClient.Booksleeve
 
-https://nuget.org/packages/Resque.RedisClient.Booksleeve
-
-Install-Package Resque.RedisClient.Booksleeve
+		$ Install-Package Resque.RedisClient.Booksleeve
