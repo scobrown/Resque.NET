@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -6,7 +7,7 @@ namespace Resque
 {
     public class Resque
     {
-        private readonly Dictionary<string, Queue> _queues = new Dictionary<string, Queue>();
+        private readonly ConcurrentDictionary<string, Queue> _queues = new ConcurrentDictionary<string, Queue>();
         public IJobCreator JobCreator { get; set; }
         public IFailureService FailureService { get; set; }
         public IRedis Client { get; set; }
@@ -50,11 +51,7 @@ namespace Resque
         }
         private Queue GetQueue(string name)
         {
-            if (_queues.ContainsKey(name))
-                return _queues[name];
-            var queue = new Queue(Client, name);
-            _queues.Add(name, queue);
-            return queue;
+            return _queues.GetOrAdd(name, n => new Queue(Client, n));
         }
     }
 }
