@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using Newtonsoft.Json;
@@ -21,15 +23,32 @@ namespace Resque
         public IJobCreator JobCreator { get; private set; }
         public IFailureService FailureService { get; set; }
         public IRedis Client { get; set; }
-        protected string[] Queues { get; set; }
+        protected string[] Queues { get; private set; }
+        protected string[] RedisQueues
+        {
+            get
+            {
+                var queues = new List<string>();
+                if(Queues.Contains("*"))
+                    queues.AddRange(Client.SMembers("queues"));
+
+                return Queues.Distinct().OrderBy(x => x).ToArray();
+            }
+        }
         public bool Pause { get; set; }
         public bool Shutdown { get; set; }
+
+        public WorkerState State { get { return Client.Exists("worker:" + RedisId) ? WorkerState.Working : WorkerState.Idle; }}
+        public bool Idle { get { return State == WorkerState.Idle; } }
+        public bool Working { get { return State == WorkerState.Working; } }
+
+        public DateTime Started { get { return DateTime.Parse(Client.Get(string.Format("worker:{0}:started", RedisId))); } }
 
         public string RedisId
         {
             get
             {
-                return String.Format("{0}:{1}:{2}", _dnsName, _threadId, String.Join(",", Queues));
+                return String.Format("{0}:{1}:{2}", _dnsName, _threadId, string.Join(",", Queues));
             }
         }
 
@@ -42,10 +61,7 @@ namespace Resque
             if(queues == null || queues.Length == 0)
                 throw new ArgumentException("Invalid Queues");
 
-            if (queues.Length == 1 && queues[0] == "*")
-                Queues = new string[] {"high"};//Resque.Queues();
-            else
-                Queues = queues;
+            Queues = queues;
         }
 
 
@@ -94,14 +110,15 @@ namespace Resque
 
         private void RegisterWorker()
         {
-            Client.SAdd("resque:workers", RedisId);
+            Client.SAdd("workers", RedisId);
+            Client.Set(string.Format("worker:{0}:started", RedisId), DateTime.Now.ToString("yyyy MMM dd hh:mm:ss zzzz"));
         }
 
         private void UnregisterWorker()
         {
-            Client.SRemove("resque:workers", RedisId);
-            Client.RemoveKeys(String.Format("resque:worker:{0}", RedisId));
-            Client.RemoveKeys(String.Format("resque:worker:{0}:started", RedisId));
+            Client.SRemove("workers", RedisId);
+            Client.RemoveKeys(String.Format("worker:{0}", RedisId));
+            Client.RemoveKeys(String.Format("worker:{0}:started", RedisId));
         }
 
         private void Process(IJob job)
@@ -125,7 +142,7 @@ namespace Resque
 
         private void DoneWorking()
         {
-            Client.RemoveKeys(string.Format("resque:worker:{0}", RedisId));
+            Client.RemoveKeys(string.Format("worker:{0}", RedisId));
         }
 
         private void SetFailed()
@@ -138,23 +155,26 @@ namespace Resque
             var data = new
                            {
                                queue = job.Queue,
-                               run_at = DateTime.Now.ToString("ddd MMM dd hh:mm:ss zzzz yyyy"),
+                               run_at = DateTime.Now.ToString("yyyy MMM dd hh:mm:ss zzzz"),
                                payload = job.Payload
                            };
-            Client.Set(string.Format("resque:worker:{0}", RedisId), JsonConvert.SerializeObject(data));
+            Client.Set(string.Format("worker:{0}", RedisId), JsonConvert.SerializeObject(data));
         }
 
         public IJob Reserve()
         {
-            foreach (var queue in Queues)
-            {
-                var queued = Client.LPop(queue);
-                if (!string.IsNullOrEmpty(queued))
-                    return JobCreator.CreateJob(FailureService,
-                                            this,
-                                            JsonConvert.DeserializeObject<QueuedItem>(queued), queue);
-            }
+            var multi = new MultiQueue(Client, RedisQueues);
+            var item = multi.Pop();
+            if (item != null)
+                return JobCreator.CreateJob(FailureService, this, item.Item2, item.Item1);
+
             return null;
         }
+    }
+
+    public enum WorkerState
+    {
+        Working,
+        Idle
     }
 }
