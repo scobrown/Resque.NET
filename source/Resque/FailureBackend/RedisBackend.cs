@@ -43,7 +43,7 @@ namespace Resque.FailureBackend
                                payload = Payload,
                                exception = Exception.GetType().Name,
                                error = Exception.Message,
-                               backtrace = Exception.StackTrace,
+                               backtrace = new[]{Exception.StackTrace},
                                worker = Worker.RedisId,
                                queue = Queue
                            };
