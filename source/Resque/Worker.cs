@@ -111,7 +111,7 @@ namespace Resque
         private void RegisterWorker()
         {
             Client.SAdd("workers", RedisId);
-            Client.Set(string.Format("worker:{0}:started", RedisId), DateTime.Now.ToString("yyyy MMM dd hh:mm:ss zzzz"));
+            Client.Set(string.Format("worker:{0}:started", RedisId), DateTime.Now.ToString("yyyy MMM dd HH:mm:ss zzzz"));
         }
 
         private void UnregisterWorker()
@@ -155,7 +155,7 @@ namespace Resque
             var data = new
                            {
                                queue = job.Queue,
-                               run_at = DateTime.Now.ToString("yyyy MMM dd hh:mm:ss zzzz"),
+                               run_at = DateTime.Now.ToString("yyyy MMM dd HH:mm:ss zzzz"),
                                payload = job.Payload
                            };
             Client.Set(string.Format("worker:{0}", RedisId), JsonConvert.SerializeObject(data));

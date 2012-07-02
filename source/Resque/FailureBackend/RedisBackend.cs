@@ -48,7 +48,7 @@ namespace Resque.FailureBackend
                                queue = Queue
                            };
 
-            RedisClient.RPush("resque:failed", JsonConvert.SerializeObject(data));
+            RedisClient.RPush("failed", JsonConvert.SerializeObject(data));
         }
     }
  }
