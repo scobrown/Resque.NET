@@ -166,9 +166,19 @@ namespace Resque
             var multi = new MultiQueue(Client, RedisQueues);
             var item = multi.Pop();
             if (item != null)
-                return JobCreator.CreateJob(FailureService, this, item.Item2, item.Item1);
-
+            {
+                var queueName = GetQueueName(item.Item1);
+                return JobCreator.CreateJob(FailureService, this, item.Item2, queueName);
+            }
             return null;
+        }
+
+        private string GetQueueName(string item)
+        {
+            const string queueSubString = "queue:";
+            var index = item.IndexOf(queueSubString);
+            if(index == -1 ) return item;
+            return item.Substring(index + queueSubString.Length);
         }
     }
 
