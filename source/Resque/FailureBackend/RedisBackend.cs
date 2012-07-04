@@ -43,12 +43,12 @@ namespace Resque.FailureBackend
                                payload = Payload,
                                exception = Exception.GetType().Name,
                                error = Exception.Message,
-                               backtrace = Exception.StackTrace,
-                               worker = Worker.RedisId,
+                               backtrace = new[]{Exception.StackTrace},
+                               worker = Worker.WorkerId,
                                queue = Queue
                            };
 
-            RedisClient.RPush("resque:failed", JsonConvert.SerializeObject(data));
+            RedisClient.RPush("failed", JsonConvert.SerializeObject(data));
         }
     }
  }
