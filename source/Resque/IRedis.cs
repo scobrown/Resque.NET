@@ -16,9 +16,11 @@ namespace Resque
         IEnumerable<string> SMembers(string key);
         long RPush(string key, string value);
 
-        Tuple<string, string> BLPop(string[] keys, int timeoutSeconds = 0);
+        Tuple<string, string> BLPop(string[] keys, int timeoutSeconds = 10);
 
         Dictionary<string, string> HGetAll(string key);
         void HSet(string key, string field, string value);
+
+        long Incr(string key);
     }
 }

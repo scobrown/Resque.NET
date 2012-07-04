@@ -44,7 +44,7 @@ namespace Resque.FailureBackend
                                exception = Exception.GetType().Name,
                                error = Exception.Message,
                                backtrace = new[]{Exception.StackTrace},
-                               worker = Worker.RedisId,
+                               worker = Worker.WorkerId,
                                queue = Queue
                            };
 
