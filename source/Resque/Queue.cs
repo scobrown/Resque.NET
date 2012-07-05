@@ -17,7 +17,7 @@ namespace Resque
             Name = name;
             RedisName = string.Format("queue:{0}", name);
 
-            Client.SAdd("queues", RedisName);
+            Client.SAdd("queues", name);
         }
         public Tuple<string, QueuedItem> Pop()
         {
