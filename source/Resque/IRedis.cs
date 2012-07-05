@@ -19,6 +19,13 @@ namespace Resque
         Tuple<string, string> BLPop(string[] keys, int timeoutSeconds = 0);
 
         Dictionary<string, string> HGetAll(string key);
-        void HSet(string key, string field, string value);
+        string HGet(string key, string field);
+        bool HSet(string key, string field, string value);
+
+        bool ZAdd(string key, string value, long score);
+        long ZCard(string key);
+        long ZCard(string key, long min, long max);
+        Tuple<string, double>[] ZRange(string key, long start, long stop, bool ascending = false);
+        double ZScore(string key, string member);
     }
 }
