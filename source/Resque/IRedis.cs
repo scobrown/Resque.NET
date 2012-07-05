@@ -16,7 +16,7 @@ namespace Resque
         IEnumerable<string> SMembers(string key);
         long RPush(string key, string value);
 
-        Tuple<string, string> BLPop(string[] keys, int timeoutSeconds = 0);
+        Tuple<string, string> BLPop(string[] keys, int timeoutSeconds = 10);
 
         Dictionary<string, string> HGetAll(string key);
         string HGet(string key, string field);
@@ -27,5 +27,7 @@ namespace Resque
         long ZCard(string key, long min, long max);
         Tuple<string, double>[] ZRange(string key, long start, long stop, bool ascending = false);
         double ZScore(string key, string member);
+
+        long Incr(string key);
     }
 }
