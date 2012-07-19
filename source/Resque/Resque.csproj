@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ResqueClient.cs" />
     <Compile Include="FailureBackend\IBackendFactory.cs" />
     <Compile Include="FailureBackend\RedisBackend.cs" />
     <Compile Include="FailureService.cs" />
