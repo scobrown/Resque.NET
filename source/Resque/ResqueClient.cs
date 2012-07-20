@@ -2,7 +2,12 @@
 
 namespace Resque
 {
-    public class ResqueClient
+    public interface IResqueClient
+    {
+        void Push(string queue, string job, params string[] args);
+    }
+
+    public class ResqueClient : IResqueClient
     {
         private readonly ConcurrentDictionary<string, Queue> _queues = new ConcurrentDictionary<string, Queue>();
         public IRedis Client { get; set; }
