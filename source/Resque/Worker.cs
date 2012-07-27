@@ -44,12 +44,17 @@ namespace Resque
 
         public DateTime Started { get { return DateTime.Parse(Client.Get(string.Format("worker:{0}:started", WorkerId))); } }
 
+        private string _workerId;
+
         public string WorkerId
         {
             get
             {
-                return String.Format("{0}:{1}:{2}", _dnsName, _threadId, string.Join(",", Queues));
+                if(_workerId == null)
+                    _workerId = String.Format("{0}:{1}:{2}", _dnsName, _threadId, string.Join(",", Queues));
+                return _workerId;
             }
+            set { _workerId = value; }
         }
 
         public Worker(IJobCreator locator, IFailureService failureService, IRedis client, params string[] queues)
