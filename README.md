@@ -1,7 +1,7 @@
 Resque.NET
 ==========
 
-Resque .NET implimentation
+Resque .NET implementation
 
 Redis Booksleeve Client
 =======================
